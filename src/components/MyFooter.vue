@@ -47,23 +47,23 @@ export default {
       {
         name: "facebook",
         icon: "mdi-facebook",
-        url: "https://codepen.io/jettaz",
+        url: "#",
       },
       {
         name: "twitter",
         icon: "mdi-twitter",
-        url: "https://codepen.io/jettaz",
+        url: "#",
       },
       { name: "google", icon: "mdi-google", url: "https://codepen.io/jettaz" },
       {
         name: "linkedin",
         icon: "mdi-linkedin",
-        url: "https://codepen.io/jettaz",
+        url: "#",
       },
       {
         name: "instagram",
         icon: "mdi-instagram",
-        url: "https://codepen.io/jettaz",
+        url: "#",
       },
     ],
   }),

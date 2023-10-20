@@ -5,15 +5,27 @@
       ref="map"
       v-model:zoom="zoom"
       :center="center"
-      measureControl="true"
       @ready="mapReady"
     >
+      <!-- <l-geo-json
+        v-if="show"
+        :geojson="OukaimdenStationGeoJson"
+        :options="options"
+        :options-style="OukaimdenStationStyleFunction"
+      />
       <l-geo-json
         v-if="show"
-        :geojson="geojson"
+        :geojson="RiverBasinTensiftGeoJson"
         :options="options"
-        :options-style="styleFunction"
+        :options-style="RiverBasinTensiftStyleFunction"
       />
+      <l-geo-json
+        v-if="show"
+        :geojson="RherayaSubBasinGeoJson"
+        :options="options"
+        :options-style="RherayaSubBasinStyleFunction"
+      /> -->
+
       <l-control-layers position="topright"></l-control-layers>
       <l-tile-layer
         v-for="tileProvider in tileProviders"
@@ -24,6 +36,32 @@
         :attribution="tileProvider.attribution"
         layer-type="base"
       />
+      <l-control :position="controlPosition">
+        <div>
+          <input
+            type="checkbox"
+            v-model="isGeoJsonVisible"
+            @change="toggleGeoJsonLayer"
+          />
+          <label>Show GeoJSON Layer</label>
+        </div>
+      </l-control>
+
+      <!-- Layer Group for GeoJSON layers -->
+      <l-layer-group ref="geoJsonLayerGroup">
+        <l-geo-json
+          v-if="show"
+          :geojson="OukaimdenStationGeoJson"
+          :options="options"
+          :options-style="OukaimdenStationStyleFunction"
+        />
+        <l-geo-json
+          v-if="show"
+          :geojson="RiverBasinTensiftGeoJson"
+          :options="options"
+          :options-style="RiverBasinTensiftStyleFunction"
+        />
+      </l-layer-group>
       <l-control-scale
         size="50px"
         position="bottomright"
@@ -38,10 +76,14 @@
 </template>
 
 <script>
+import Oukaimden_Station_GeoJson from "../GeoportailData/Oukaimden_Station.json";
+import Rheraya_SubBasin_GeoJson from "../GeoportailData/Rheraya_SubBasin.json";
+import RiverBasin_Tensift_GeoJson from "../GeoportailData/RiverBasin_Tensift.json";
 import {
   LMap,
-  LGeoJson,
+  // LGeoJson,
   LControlLayers,
+  LLayerGroup,
   LTileLayer,
   LControlScale,
   LControl,
@@ -57,7 +99,7 @@ import "leaflet-measure/dist/leaflet-measure.css";
 import "leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
 import "leaflet-timedimension";
-// import "leaflet-timedimension/dist/leaflet.timedimension.control.min.css";
+import "leaflet-timedimension/dist/leaflet.timedimension.control.min.css";
 export default {
   name: "LeafletMap",
   data() {
@@ -66,40 +108,50 @@ export default {
       show: true,
       enableTooltip: true,
       zoom: 6,
-      center: [48, -1.219482],
-      geojson: null,
+      center: [31.181137630474392, -7.8652742138851677],
       fillColor: "#e4ce7f",
       url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
       attribution:
         '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
       tileProviders: [
         {
-          name: "OpenStreetMap",
+          name: "Open Street Map",
           visible: true,
           attribution:
             '&copy; <a target="_blank" href="http://osm.org/copyright">OpenStreetMap</a> contributors',
           url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
         },
         {
-          name: "OpenTopoMap",
+          name: "Open Topo Map",
           visible: false,
           url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
           attribution:
             'Map data: &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)',
+        },
+        {
+          name: "World Imagery",
+          visible: false,
+          url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}.png",
+          attribution:
+            "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
         },
       ],
       minTime: 0,
       maxTime: 100,
       timeStep: 1,
       selectedTime: 0,
+      OukaimdenStationGeoJson: null,
+      RherayaSubBasinGeoJson: null,
+      RiverBasinTensiftGeoJson: null,
     };
   },
   components: {
     LMap,
     LTileLayer,
     LControlScale,
-    LGeoJson,
+    // LGeoJson,
     LControlLayers,
+    LLayerGroup,
     LControl,
   },
   computed: {
@@ -108,8 +160,32 @@ export default {
         onEachFeature: this.onEachFeatureFunction,
       };
     },
-    styleFunction() {
-      const fillColor = this.fillColor; // important! need touch fillColor in computed for re-calculate when change fillColor
+    OukaimdenStationStyleFunction() {
+      const fillColor = "#FF5733";
+      return () => {
+        return {
+          weight: 2,
+          color: "#ECEFF1",
+          opacity: 1,
+          fillColor: fillColor,
+          fillOpacity: 1,
+        };
+      };
+    },
+    RherayaSubBasinStyleFunction() {
+      const fillColor = "#33FF3F";
+      return () => {
+        return {
+          weight: 2,
+          color: "#ECEFF1",
+          opacity: 1,
+          fillColor: fillColor,
+          fillOpacity: 1,
+        };
+      };
+    },
+    RiverBasinTensiftStyleFunction() {
+      const fillColor = this.fillColor;
       return () => {
         return {
           weight: 2,
@@ -126,10 +202,16 @@ export default {
       }
       return (feature, layer) => {
         layer.bindTooltip(
-          "<div>code:" +
-            feature.properties.code +
-            "</div><div>nom: " +
-            feature.properties.nom +
+          "<div>" +
+            (feature.properties.Name ? "Name:" + feature.properties.Name : "") +
+            "</div><div>" +
+            (feature.properties.Area_km2
+              ? "Area km2: " + feature.properties.Area_km2
+              : "") +
+            "</div><div>" +
+            (feature.properties.OUED
+              ? "OUED: " + feature.properties.OUED
+              : "") +
             "</div>",
           { permanent: false, sticky: true }
         );
@@ -137,13 +219,11 @@ export default {
     },
   },
   async created() {
-    this.loading = true;
-    const response = await fetch(
-      "https://rawgit.com/gregoiredavid/france-geojson/master/regions/pays-de-la-loire/communes-pays-de-la-loire.geojson"
-    );
-    const data = await response.json();
-    this.geojson = data;
-    this.loading = false;
+    // this.loading = true;
+    this.OukaimdenStationGeoJson = Oukaimden_Station_GeoJson;
+    this.RherayaSubBasinGeoJson = Rheraya_SubBasin_GeoJson;
+    this.RiverBasinTensiftGeoJson = RiverBasin_Tensift_GeoJson;
+    // this.loading = false;
   },
   methods: {
     mapReady() {
@@ -167,15 +247,87 @@ export default {
       var drawControl = new L.Control.Draw();
       drawControl.addTo(map);
 
-      // Initialize the TimeDimension control
-      const timeDimension = new L.TimeDimension({});
-      // Add it to the map
-      map.addControl(timeDimension);
+      // var timeDimension = new L.TimeDimension({
+      //   period: "PT5M",
+      // });
+      // // helper to share the timeDimension object between all layers
+      // map.timeDimension = timeDimension;
+      // // otherwise you have to set the 'timeDimension' option on all layers.
 
-      // Create your time series data and time layer as mentioned in the previous response
+      // var player = new L.TimeDimension.Player(
+      //   {
+      //     transitionTime: 100,
+      //     loop: false,
+      //     startOver: true,
+      //   },
+      //   timeDimension
+      // );
 
-      // Add the time-based layer to the TimeDimension control
-      // timeDimension.addTimedLayer(timeLayer);
+      // var timeDimensionControlOptions = {
+      //   player: player,
+      //   timeDimension: timeDimension,
+      //   position: "bottomleft",
+      //   autoPlay: true,
+      //   minSpeed: 1,
+      //   speedStep: 0.5,
+      //   maxSpeed: 15,
+      //   timeSliderDragUpdate: true,
+      // };
+
+      // var timeDimensionControl = new L.Control.TimeDimension(
+      //   timeDimensionControlOptions
+      // );
+      // map.addControl(timeDimensionControl);
+
+      const timeDimension = new L.TimeDimension({
+        period: "PT1H", // Specify the time interval (e.g., 1 hour)
+        autoPlay: true, // Automatically play the time animation
+        timeInterval: "2010-01-01/2015-01-01",
+      });
+      map.timeDimension = timeDimension;
+      const player = new L.TimeDimension.Player(
+        {
+          loop: true, // Enable looping of time animation
+          startOver: true, // Restart animation when it reaches the end
+          buffer: 1, // Specify the time buffer
+        },
+        timeDimension
+      );
+      map.timeDimension.player = player;
+      const timeDimensionControl = new L.Control.TimeDimension({
+        position: "bottomleft",
+        autoPlay: true,
+        loopButton: true,
+        backwardButton: true,
+        forwardButton: true,
+        timeSlider: true,
+        player: player,
+      });
+      map.addControl(timeDimensionControl);
+
+      //   var wmsUrl = "http://localhost:8088/geoserver/GeoportailData/wms";
+      //   var wmsLayer = L.tileLayer.wms(wmsUrl, {
+      //     layers: "GeoportailData:temperature_layer_2010_2015",
+      //     format: "image/png",
+      //     transparent: true,
+      //     attribution: "",
+      //   });
+      //   // Create and add a TimeDimension Layer to the map
+      //   var tdWmsLayer = L.timeDimension.layer.wms(wmsLayer);
+      //   tdWmsLayer.addTo(map);
+
+      //   // this.$refs.features.mapObject.;
+      // },
+      // toggleGeoJsonLayer() {
+      //   // Toggle the visibility of the GeoJSON layer group
+      //   const layerGroup = this.$refs.geoJsonLayerGroup.mapObject;
+
+      //   if (this.show) {
+      //     layerGroup.addLayer(this.OukaimdenStationGeoJson);
+      //     layerGroup.addLayer(this.RherayaSubBasinGeoJson);
+      //   } else {
+      //     layerGroup.clearLayers();
+      //   }
     },
   },
 };

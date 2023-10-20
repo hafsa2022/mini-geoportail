@@ -1,0 +1,34 @@
+{
+  "type" : "FeatureCollection",
+  "features" : [
+    {
+      "type" : "Feature",
+      "id" : 0,
+      "geometry" : {
+        "type" : "Point",
+        "coordinates" : [
+          -7.8652742138851677,
+          31.181137630474392
+        ]
+      },
+      "properties" : {
+        "FID" : 0,
+        "Name" : "Oukaimeden",
+        "Agency" : "TREMA",
+        "X_NM" : 264803,
+        "Y_NM" : 68137,
+        "Z" : 3230,
+        "QUALIT_POS" : "ok",
+        "OUED" : "Rheraya",
+        "Id_IRE" : " ",
+        "Comment" : " ",
+        "Variables" : "P, T, H, R, V, Neige",
+        "Actif" : 1,
+        "Date_deb" : "2003/03",
+        "Date_fin" : " ",
+        "X_UTM29N" : 608100,
+        "Y_UTM29N" : 3450000
+      }
+    }
+  ]
+}

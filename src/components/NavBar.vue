@@ -8,19 +8,14 @@
   >
     <v-toolbar-title class="logo"
       ><span style="font-size: 35px; font-weight: 600">
-        <v-img :src="srcImg" controls width="300" height="150" />
+        <v-img
+          src="../assets/GeoportailLogo.png"
+          controls
+          width="300"
+          height="150"
+        />
       </span>
     </v-toolbar-title>
-    <v-spacer></v-spacer>
-    <div class="mr-4">
-      <v-img
-        src="../assets/GeoportailLogo.png"
-        alt=""
-        controls
-        width="300"
-        height="150"
-      />
-    </div>
   </v-app-bar>
   <NavDrawer />
 </template>
@@ -29,9 +24,7 @@
 import NavDrawer from "../components/NavDrawer.vue";
 export default {
   name: "NavBar",
-  data: () => ({
-    srcImg: require("../assets/CRSALogo.png"),
-  }),
+  data: () => ({}),
   components: {
     NavDrawer,
   },
